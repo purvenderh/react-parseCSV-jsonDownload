@@ -123,15 +123,17 @@ function App() {
               <div style={styles.acceptedFile}>
                 {acceptedFile && acceptedFile.name}
               </div>
-              <Button
-                variant="contained"
-                color="success"
-                onClick={removeCSV}
-                // {...getRemoveFileProps()}
-                style={styles.remove}
-              >
-                Remove
-              </Button>
+              {row && (
+                <Button
+                  variant="contained"
+                  color="error"
+                  onClick={removeCSV}
+                  // {...getRemoveFileProps()}
+                  style={styles.remove}
+                >
+                  Remove
+                </Button>
+              )}
             </div>
             <ProgressBar style={styles.progressBarBackgroundColor} />
           </>
