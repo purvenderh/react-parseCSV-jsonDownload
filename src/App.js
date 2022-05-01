@@ -43,10 +43,18 @@ function App() {
     setRow(objData);
   };
 
+  const removeCSV = () => {
+    setRow(null);
+    setColumn(null);
+  };
+
+  //function for exporting json data
   const exportData = () => {
     const jsonString = `data:text/json;chatset=utf-8,${encodeURIComponent(
       JSON.stringify(row)
     )}`;
+
+    //creating link , adding href and download and click property
     const link = document.createElement("a");
     link.href = jsonString;
     link.download = "data.json";
@@ -54,11 +62,47 @@ function App() {
     link.click();
   };
 
+  //styles for crv converter
+  const styles = {
+    csvReader: {
+      display: "flex",
+      flexDirection: "row",
+      marginBottom: "5rem",
+      marginTop: "5rem",
+      margin: "auto",
+      maxWidth: "400px",
+    },
+    browseFile: {
+      width: "20%",
+    },
+    acceptedFile: {
+      border: "1px solid #ccc",
+      height: 45,
+      lineHeight: 2.5,
+      paddingLeft: 10,
+      width: "80%",
+    },
+    remove: {
+      borderRadius: 0,
+      padding: "0 20px",
+    },
+    progressBarBackgroundColor: {
+      backgroundColor: "red",
+    },
+  };
+
   return (
-    <div className="App" style={{ marginTop: "3rem" }}>
-      <Button variant="contained" color="success" onClick={exportData}>
-        Download Json
-      </Button>
+    <div className="App" style={{ marginTop: "3rem", marginBottom: "3rem" }}>
+      {row && (
+        <Button
+          variant="contained"
+          color="success"
+          onClick={exportData}
+          style={{ marginBottom: "3rem" }}
+        >
+          Download Json
+        </Button>
+      )}
 
       <CSVReader
         onUploadAccepted={(results: any) => {
@@ -72,19 +116,36 @@ function App() {
           getRemoveFileProps,
         }: any) => (
           <>
-            <div>
+            <div style={styles.csvReader}>
               <button type="button" {...getRootProps()}>
                 Browse file
               </button>
-              <div>{acceptedFile && acceptedFile.name}</div>
-              <button {...getRemoveFileProps()}>Remove</button>
+              <div style={styles.acceptedFile}>
+                {acceptedFile && acceptedFile.name}
+              </div>
+              <Button
+                variant="contained"
+                color="success"
+                onClick={removeCSV}
+                // {...getRemoveFileProps()}
+                style={styles.remove}
+              >
+                Remove
+              </Button>
             </div>
-            <ProgressBar />
+            <ProgressBar style={styles.progressBarBackgroundColor} />
           </>
         )}
       </CSVReader>
 
-      <div style={{ height: 400, width: "100%", marginY: "2rem" }}>
+      <div
+        style={{
+          height: 400,
+          width: "100%",
+          marginTop: "3rem",
+          marginBottom: "3rem",
+        }}
+      >
         {row && (
           <DataGrid
             rows={row}
@@ -97,11 +158,11 @@ function App() {
       </div>
 
       <div>
-        <Typography variant="h6" gutterBottom component="div">
+        <Typography variant="h6" gutterBottom component="div" color="success">
           CSV parser Source:-{" "}
           <a href="https://react-papaparse.js.org/">React papa-parse</a>
         </Typography>
-        <Typography variant="h6" gutterBottom component="div">
+        <Typography variant="h6" gutterBottom component="div" color="success">
           Data Source:- <a href="https://www.mockaroo.com/">Mockaroo</a>
         </Typography>
       </div>
