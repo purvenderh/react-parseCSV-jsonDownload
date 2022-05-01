@@ -1,65 +1,109 @@
 import "./App.css";
-import dataFromDb from "./data/data.json";
+import { Button } from "@mui/material";
 import { DataGrid } from "@mui/x-data-grid";
+import { useCSVReader } from "react-papaparse";
+import { useState } from "react";
+import Typography from "@mui/material/Typography";
 
 function App() {
-  const columns = [
-    { field: "id", headerName: "ID", minWidth: 100, flex: 1 },
-    {
-      field: "firstName",
-      headerName: "First name",
-      minWidth: 150,
-      flex: 1,
-    },
-    {
-      field: "lastName",
-      headerName: "Last name",
-      minWidth: 150,
-      flex: 1,
-    },
-    {
-      field: "age",
-      headerName: "Age",
-      type: "number",
-      minWidth: 110,
-      flex: 1,
-    },
-    {
-      field: "fullName",
-      headerName: "Full name",
-      description: "This column has a value getter and is not sortable.",
-      sortable: false,
-      minWidth: 160,
-      flex: 1,
-      valueGetter: (params) =>
-        `${params.row.firstName || ""} ${params.row.lastName || ""}`,
-    },
-  ];
+  const { CSVReader } = useCSVReader();
+  const [column, setColumn] = useState();
+  const [row, setRow] = useState();
 
-  const rows = [
-    { id: 1, lastName: "Snow", firstName: "Jon", age: 35 },
-    { id: 2, lastName: "Lannister", firstName: "Cersei", age: 42 },
-    { id: 3, lastName: "Lannister", firstName: "Jaime", age: 45 },
-    { id: 4, lastName: "Stark", firstName: "Arya", age: 16 },
-    { id: 5, lastName: "Targaryen", firstName: "Daenerys", age: null },
-    { id: 6, lastName: "Melisandre", firstName: null, age: 150 },
-    { id: 7, lastName: "Clifford", firstName: "Ferrara", age: 44 },
-    { id: 8, lastName: "Frances", firstName: "Rossini", age: 36 },
-    { id: 9, lastName: "Roxie", firstName: "Harvey", age: 65 },
-  ];
+  const convertJson = (res) => {
+    const rawData = res.data;
+
+    //taking out columns array from array
+    const colArray = rawData.shift();
+
+    //get array of objects from array of array for datagrid
+    const objData = res.data.map((row, index) => {
+      //each object with key as column
+      const outObj = {};
+
+      //traversing column array
+      colArray.forEach((colName, index) => {
+        outObj[colName] = row[index];
+      });
+      return outObj;
+    });
+
+    //get array of objects for datagrid column and initializing it with width and headerName
+    const colObjForTab = colArray.map((colName) => {
+      return {
+        field: colName,
+        headerName: colName.toUpperCase(),
+        minWidth: 100,
+        flex: 1,
+      };
+    });
+
+    //updating columns and rows for tab
+    setColumn(colObjForTab);
+    setRow(objData);
+  };
+
+  const exportData = () => {
+    const jsonString = `data:text/json;chatset=utf-8,${encodeURIComponent(
+      JSON.stringify(row)
+    )}`;
+    const link = document.createElement("a");
+    link.href = jsonString;
+    link.download = "data.json";
+
+    link.click();
+  };
 
   return (
-    <div className="App">
-      <input type={"file"}></input>
+    <div className="App" style={{ marginTop: "3rem" }}>
+      <Button variant="contained" color="success" onClick={exportData}>
+        Download Json
+      </Button>
 
-      <div style={{ height: 400, width: "100%", marginTop: "5rem" }}>
-        <DataGrid
-          rows={rows}
-          columns={columns}
-          pageSize={5}
-          rowsPerPageOptions={[5]}
-          disableSelectionOnClick
-        />
+      <CSVReader
+        onUploadAccepted={(results: any) => {
+          convertJson(results);
+        }}
+      >
+        {({
+          getRootProps,
+          acceptedFile,
+          ProgressBar,
+          getRemoveFileProps,
+        }: any) => (
+          <>
+            <div>
+              <button type="button" {...getRootProps()}>
+                Browse file
+              </button>
+              <div>{acceptedFile && acceptedFile.name}</div>
+              <button {...getRemoveFileProps()}>Remove</button>
+            </div>
+            <ProgressBar />
+          </>
+        )}
+      </CSVReader>
+
+      <div style={{ height: 400, width: "100%", marginY: "2rem" }}>
+        {row && (
+          <DataGrid
+            rows={row}
+            columns={column}
+            pageSize={5}
+            rowsPerPageOptions={[5]}
+            disableSelectionOnClick
+          />
+        )}
+      </div>
+
+      <div>
+        <Typography variant="h6" gutterBottom component="div">
+          CSV parser Source:-{" "}
+          <a href="https://react-papaparse.js.org/">React papa-parse</a>
+        </Typography>
+        <Typography variant="h6" gutterBottom component="div">
+          Data Source:- <a href="https://www.mockaroo.com/">Mockaroo</a>
+        </Typography>
       </div>
     </div>
   );
