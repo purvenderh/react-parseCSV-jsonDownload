@@ -8,21 +8,21 @@ function App() {
 
   const exportData = () => {
     var educationList = [];
+    var employmentList = [];
     for (let i = 1; i <= 10; i++) {
       if (!row["education_" + i]) break;
       educationList.push({
-        school: row["education_"+i],
-        degree: row["education_degree_"+i],
-        speciality: row["education_fos_"+i],
-        description: row["education_description_"+i],
-        startDate: new Date(row["education_start_"+i]),
-        endDate: row["education_end_"+i]?new Date(row["education_end_"+i]):"",
+        school: row["education_" + i],
+        degree: row["education_degree_" + i],
+        speciality: row["education_fos_" + i],
+        description: row["education_description_" + i],
+        startDate: new Date(row["education_start_" + i]),
+        endDate: row["education_end_" + i]
+          ? new Date(row["education_end_" + i])
+          : "",
         position: i,
       });
     }
-
-    var employmentList = [];
-
     for (let i = 1; i <= 10; i++) {
       if (!row["organization_" + i]) break;
       employmentList.push({
@@ -31,16 +31,18 @@ function App() {
         designation: row["organization_title_" + i],
         description: row["organization_description_" + i],
         startDate: new Date(row["organization_start_" + i]),
-        endDate: row["organization_end_" + i]?new Date(row["organization_end_" + i]):"",
+        endDate: row["organization_end_" + i]
+          ? new Date(row["organization_end_" + i])
+          : "",
         location: row["organization_location_" + i],
         position: i,
       });
     }
-    
+
     var result = {};
     result.educationList = educationList;
     result.employmentList = employmentList;
-    console.log(result)
+    console.log(result);
   };
 
   const convertJson = (res) => {
@@ -49,7 +51,6 @@ function App() {
     //taking out columns array from array
     const colArray = rawData.shift();
 
-    //get array of objects from array of array for datagrid
     const objData = rawData.map((row, index) => {
       //each object with key as column
       const outObj = {};
@@ -79,7 +80,7 @@ function App() {
       lineHeight: 2.5,
       paddingLeft: 10,
       width: "80%",
-    }
+    },
   };
 
   return (
